@@ -35,9 +35,6 @@ Vue.component('product', {
         <div class="buttons">
           <button v-on:click="addToCart" :disabled="!inStock"  class="addBtn" :class="{ disabledButton: !inStock }">Add to Cart</button>
           <button v-on:click="removeCart" class="removeBtn">Remove from Cart</button>
-          <div class="cart">
-            <p>Cart({{cart}})</p>
-          </div>
         </div>
       </div>
     </div>
@@ -54,39 +51,31 @@ Vue.component('product', {
           variantId: 2235,
           variantColor: "pink",
           variantImage: './images/pink-socks.jpg',
-          variantQuantity: 5,
+          variantQuantity: 10,
         },
         {
           variantId: 2236,
           variantColor: "red",
           variantImage: './images/red-socks.jpg',
-          variantQuantity: 0,
+          variantQuantity: 5,
         }
-      ],
-      cart: 0,
+      ]
     }
   },
   methods: {
     addToCart: function(){
-      if(this.cart<5){
-        this.cart += 1;
+        this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId);
         //console.log(this);
         this.inventory -= 1;
+        //console.log(this.inventory);
         this.variants[this.selectedVariant].variantQuantity -= 1;
         //console.log(this.variants[this.selectedVariant].variantQuantity);
-      }else{
-        alert("Cannot add more than 5 items per product!");
-      }
     },
     removeCart: function(){
-      if(this.cart>0){
-        this.cart -= 1;
+        this.$emit('remove-cart')
         this.inventory += 1;
         this.variants[this.selectedVariant].variantQuantity += 1;
         //console.log(this.variants[this.selectedVariant].variantQuantity);
-      }else{
-        alert("Cart is empty")
-      }
     },
     updateProduct: function(index){
       this.selectedVariant = index;
@@ -104,8 +93,12 @@ Vue.component('product', {
       return this.variants[this.selectedVariant].variantQuantity;
     },
     inventory() {
+      //console.log(this.variants.length);
       let total = 0;
-      total += this.variants[this.selectedVariant].variantQuantity;
+      for(let i=0;i<this.variants.length;i++){
+        total += this.variants[i].variantQuantity;
+      }
+      //console.log(total);
       return total;
     },
     onSale() {
@@ -128,6 +121,19 @@ Vue.component('product', {
 var app = new Vue({
   el: '#app',
   data: {
-    premium: false
+    premium: false,
+    cart: []
+  },
+  methods: {
+    updateCart(id){
+      this.cart.push(id);
+    },
+    removeCart(id){
+      if(this.cart.length>0){
+        this.cart.pop(id);
+      }else{
+        alert("Cart is empty");
+      }
+    }
   }
 })
